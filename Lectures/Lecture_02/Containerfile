@@ -1,0 +1,3 @@
+FROM ubuntu
+
+RUN apt update && apt install gcc neovim python3 -y
