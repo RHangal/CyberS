@@ -162,19 +162,15 @@ int main(int argc, char **argv) {
         exit(1);
     }
 
-    // Step 1: Read the entire file into memory
     size_t length;
     uint8_t *message = read_file(argv[1], &length);
 
-    // Step 2: Preprocess the message for padding
     PaddedMessage padded = preprocess_message(message, length);
 
-    // Step 3: Hash each 64-byte chunk
     for (size_t i = 0; i < padded.length; i += 64) {
         sha256_hash(&padded.data[i]);
     }
 
-    // Clean up
     free(message);
     free(padded.data);
    
