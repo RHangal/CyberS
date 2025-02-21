@@ -66,7 +66,7 @@ void sha256_hash(const uint8_t *chunk) {
     for (size_t i = 0; i < 16; i++) {
         W[i] = HTON( ((uint32_t *)chunk)[i] );
     }
-    
+
     for (size_t i=16; i<64; i++) {
         W[i] = s1(W[i-2]) + W[i-7] + s0(W[i-15]) + W[i-16];
     }
@@ -177,8 +177,7 @@ int main(int argc, char **argv) {
     for (size_t i = 0; i<8; i++) {
         printf("%08x", h[i]);
     }
-    printf("\n");
-
+    printf("  %s\n",argv[1]);
     return 0;
 }
 
