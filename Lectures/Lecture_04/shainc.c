@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//Fear my somewhat OOP >=)
-typedef struct {
-    uint8_t *data;
-    size_t length;
-} PaddedMessage;
-
 
 // SHA-256 Constants
 uint32_t k[64] = {
@@ -100,59 +94,17 @@ void sha256_hash(const uint8_t *chunk) {
 
 }
 
-uint8_t *read_file(const char *filename, size_t *length) {
-    FILE *file = fopen(filename, "rb");
-    if (!file) {
-        fprintf(stderr, "Failed to open file: %s\n", filename);
-        exit(1);
+void padded_message(const uint8_t *input, size_t length, size_t total_length, uint8_t *buffer) {
+    memcpy(buffer,input,length);
+    buffer[length++] = 0x80;
+    size_t pad_length = ( length % 64 <= 56) ? 64 : 128;
+    while ((length % pad_length) != pad_length-8) {
+        buffer[length++]=0x00;
     }
-
-    fseek(file, 0, SEEK_END);
-    *length = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    uint8_t *buffer = malloc(*length);
-    if (!buffer) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(1);
-    }
-
-    if (fread(buffer, 1, *length, file) != *length) {
-        fprintf(stderr, "Failed to read file\n");
-        exit(1);
-    }
-
-    fclose(file);
-    return buffer;
-}
-
-PaddedMessage preprocess_message(const uint8_t *input, size_t o_length) {
-    PaddedMessage result;
-    result.length = o_length + 1;
-
-    while ((result.length % 64) != 56) {
-        result.length++;
-    }
-    result.length += 8;
-
-    result.data = malloc(result.length);
-    if (!result.data) {
-        fprintf(stderr,"Memory allocation failed...sadge\n");
-        exit(1);
-    }
-
-    memcpy(result.data, input, o_length);
-
-    result.data[o_length] = 0x80;
-    for (size_t i = o_length+1; i < result.length-8; i++) {
-        result.data[i] = 0x00;
-    }
-
-    uint64_t bit_length = o_length * 8;
+    uint64_t bit_length = total_length * 8;
     bit_length = HTON(bit_length);
-    memcpy(&result.data[result.length-8], &bit_length, 8);
+    memcpy(&buffer[length], &bit_length, 8);
 
-    return result;
    }
 
 
@@ -161,23 +113,36 @@ int main(int argc, char **argv) {
         fprintf(stderr, "No filename provided, exiting...\n");
         exit(1);
     }
+    uint8_t m[64];
+    uint8_t m1[128];
+    size_t i,length = 0;
+    size_t total_length = 0;
+    FILE *file = fopen(argv[1], "rb");
 
-    size_t length;
-    uint8_t *message = read_file(argv[1], &length);
-
-    PaddedMessage padded = preprocess_message(message, length);
-
-    for (size_t i = 0; i < padded.length; i += 64) {
-        sha256_hash(&padded.data[i]);
+    if (!file) {
+        fprintf(stderr, "Failed to open file: %s\n", argv[1]);
+        exit(1);
     }
 
-    free(message);
-    free(padded.data);
-   
-    for (size_t i = 0; i<8; i++) {
+    while ((length = fread(m,1,64,file)) == 64) {
+        total_length+=length;
+        sha256_hash(m);
+    }
+    total_length+=length;
+    padded_message(m,length,total_length,m1);
+
+
+    sha256_hash(m1);
+    if (length % 64 > 56) {
+        sha256_hash(m1 + 64);
+    }
+
+   fclose(file);
+
+    for (i = 0; i<8; i++) {
         printf("%08x", h[i]);
     }
-    printf("\n");
+    printf("  %s\n",argv[1]);
 
     return 0;
 }
