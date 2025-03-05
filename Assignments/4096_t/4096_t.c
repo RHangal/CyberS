@@ -162,7 +162,7 @@ uint64_t bigdiv(uint64_t *num, uint64_t *den, uint64_t *quo, uint64_t *rem) {
     for (size_t i = shift_amount + 1;  i-- > 0;) {
         if (bigcmp(temp_rem, shifted_den) >= 0) {
             bigsub(temp_rem, shifted_den, temp_rem); 
-            quo[i / 64] |= (1ULL << (i % 64));  
+            quo[i / 64] |= (UINT64_C(1) << (i % 64));  
         }
         bigshr(shifted_den, 1); 
     }
