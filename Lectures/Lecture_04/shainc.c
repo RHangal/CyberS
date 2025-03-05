@@ -58,7 +58,7 @@ void sha256_hash(const uint8_t *chunk) {
     uint32_t a, b, c, d, e, f, g, h_temp, temp1, temp2;
  
     for (size_t i = 0; i < 16; i++) {
-        W[i] = HTON( ((uint32_t *)chunk)[i] );
+        W[i] = HTON(((uint32_t *)chunk)[i]);
     }
     
     for (size_t i=16; i<64; i++) {

@@ -1,7 +1,7 @@
 FROM ubuntu 
 
-RUN apt update && apt install gcc curl -y
+RUN apt update && apt install gcc curl wget -y
 
-RUN curl https://raw.githubusercontent.com/cd-c89/crypto/refs/heads/main/shainc/tester.sh -o tester.sh
+RUN wget https://raw.githubusercontent.com/cd-c89/crypto/refs/heads/main/shainc/tester.sh -O tester.sh
 
 COPY shainc.c .
