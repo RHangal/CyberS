@@ -1,0 +1,9 @@
+FROM ubuntu 
+
+RUN apt update && apt install gcc curl python3 -y
+
+COPY keygen.c .
+
+COPY rsainc.c .
+
+RUN curl https://raw.githubusercontent.com/cd-c89/crypto/refs/heads/main/rsainc/tester.py -o tester.py
