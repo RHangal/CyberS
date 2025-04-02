@@ -6,6 +6,7 @@
 #define S (size_t)(4096 / 64)
 #define BYTES S * sizeof(uint64_t)
 
+int bigcmp(uint64_t *a, uint64_t *b);
 uint64_t bigadd(uint64_t *in0, uint64_t *in1, uint64_t *sum); 
 uint64_t bigsub(uint64_t *min, uint64_t *sub, uint64_t *dif); 
 uint64_t bigmul(uint64_t *in0, uint64_t *in1, uint64_t *out); 

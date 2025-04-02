@@ -43,10 +43,9 @@ void bigshr(uint64_t *n, size_t shift) {
 
 
 int bigcmp(uint64_t *a, uint64_t *b) {
-    for (size_t i = S - 1; i>0; i--) {
-        size_t index = i -1;
-        if (a[index] > b[index]) return 1;  
-        if (a[index] < b[index]) return -1;
+    for (size_t i = S; i-- > 0;) {
+        if (a[i] > b[i]) return 1;  
+        if (a[i] < b[i]) return -1;
     }
     return 0; 
 }
