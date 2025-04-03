@@ -77,3 +77,20 @@ uint64_t bigrem(uint64_t *num, uint64_t *den, uint64_t *rem) {
     lambda(num, den, rem, mpz_tdiv_r);
     return 0;
 }
+
+void bigpowmod(uint64_t *base, uint64_t *exp, uint64_t *mod, uint64_t *out) {
+    mpz_t b, e, m, r;
+    mpz_inits(b, e, m, r, NULL);
+
+    mpz_import(b, S, -1, sizeof(uint64_t), 0, 0, base);
+    mpz_import(e, S, -1, sizeof(uint64_t), 0, 0, exp);
+    mpz_import(m, S, -1, sizeof(uint64_t), 0, 0, mod);
+
+    mpz_powm(r, b, e, m);
+
+    memset(out, 0, BYTES);
+    mpz_export(out, NULL, -1, sizeof(uint64_t), 0, 0, r);
+
+    mpz_clears(b, e, m, r, NULL);
+}
+

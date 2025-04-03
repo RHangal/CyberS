@@ -12,7 +12,7 @@ void bigshl(uint64_t *n, size_t shift) {
     size_t word_shift = shift / 64;
     size_t bit_shift = shift % 64;
 
-    for (size_t i = S - 1; i >= word_shift; i--) {
+    for (size_t i = S - 1; i-- > word_shift;) {
         n[i] = (n[i - word_shift] << bit_shift);
         if (i - word_shift) {
             n[i] |= (n[i - word_shift - 1] >> (64 - bit_shift));

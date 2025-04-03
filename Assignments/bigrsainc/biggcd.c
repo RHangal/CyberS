@@ -1,79 +1,66 @@
-#include "biggcd.h"
 #include "../4096_t/4096_t.h"
-#include "../ops_ui/ops_ui.h"
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include <gmp.h>
 
-// Check if big number is nonzero
-int bignul(uint64_t *a) {
-    for (size_t i = 0; i < S; i++) {
-        if (a[i] != 0) return 1;
+
+
+void seebig(uint64_t *a) {
+    for (size_t i = S - 1; i < S; i--) {
+        printf("%016lx ", a[i]);
+        if (i % 8 == 0 && i != 0) printf("\n");
     }
+    printf("\n\n");
+}
+
+
+void prigmp(uint64_t *big, uint8_t words) {
+    mpz_t m;
+    FILE *fp = fopen("/dev/random", "r");
+    if (!fp) {
+        fprintf(stderr, "Failed to open /dev/random\n");
+        exit(1);
+    }
+    memset(big, 0, BYTES);
+    fread(big, sizeof(uint64_t), words, fp);
+    fclose(fp);
+    mpz_init(m);
+    mpz_import(m, S, -1, sizeof(uint64_t), 0, 0, big);
+    mpz_nextprime(m, m);
+    mpz_export(big, NULL, -1, sizeof(uint64_t), 0, 0, m);
+    mpz_clear(m);
+}
+
+void biggcd(uint64_t *in_a, uint64_t *in_b, uint64_t *g) {
+    uint64_t temp[S] = {0};
+    uint64_t rem[S] = {0};
+
+    memcpy(temp, in_a, BYTES);
+
+    while (bigcmp(in_b, (uint64_t[S]){0}) != 0) {
+        bigrem(temp, in_b, rem);
+        memcpy(temp, in_b, BYTES);
+        memcpy(in_b, rem, BYTES);
+    }
+
+    memcpy(g, temp, BYTES);
+}
+
+int main() {
+    uint64_t p[S] = {0}, q[S] = {0}, g[S] = {0};
+
+    printf("Generating primes...\n");
+    prigmp(p, 32);
+    prigmp(q, 32);
+
+    printf("Computing GCD...\n");
+    biggcd(p, q, g);
+
+    printf("GCD(p, q):\n");
+    seebig(g);
+
     return 0;
-}
-
-// Signed subtraction with sign tracking
-// Returns sign (0 = positive, 1 = negative)
-uint64_t signed_sub(uint64_t *a, uint64_t as, uint64_t *b, uint64_t bs, uint64_t *r) {
-    if (as == bs) {
-        if (bigmax(b, a)) {
-            bigsub(b, a, r);
-            return !as;
-        } else {
-            bigsub(a, b, r);
-            return as;
-        }
-    } else {
-        bigadd(a, b, r);
-        return as;
-    }
-}
-
-// Extended Euclidean algorithm (unsigned big ints with manual sign tracking)
-void biggcd(uint64_t *in_a, uint64_t *in_b, uint64_t *r, uint64_t *x) {
-    uint64_t a[S], b[S], c[S], d[S], q[S], t[S], p[S], *rs[2][2];
-    uint64_t qs, ts, ps, i, signs[2][2];
-
-    memcpy(a, in_a, BYTES);
-    memcpy(b, in_b, BYTES);
-    memset(c, 0, BYTES);
-    memset(d, 0, BYTES);
-    c[0] = 1;
-
-    rs[0][0] = a;
-    rs[0][1] = b;
-    rs[1][0] = c;
-    rs[1][1] = d;
-
-    signs[0][0] = 0;
-    signs[0][1] = 0;
-    signs[1][0] = 0;
-    signs[1][1] = 0;
-
-    while (bignul(rs[0][1])) {
-        bigquo(rs[0][0], rs[0][1], q);
-        qs = signs[0][0] != signs[0][1];
-
-        for (i = 0; i < 2; i++) {
-            memcpy(t, rs[i][1], BYTES);
-            ts = signs[i][1];
-
-            bigmul(q, rs[i][1], p);
-            ps = qs != signs[i][1];
-
-            signs[i][1] = signed_sub(rs[i][0], signs[i][0], p, ps, rs[i][1]);
-            memcpy(rs[i][0], t, BYTES);
-            signs[i][0] = ts;
-        }
-    }
-
-    if (x) {
-        if (signs[1][0]) {
-            bigsub(in_b, rs[1][0], x);  // Convert to positive mod inverse
-        } else {
-            memcpy(x, rs[1][0], BYTES);
-        }
-    }
-
-    memcpy(r, rs[0][0], BYTES);
 }
 
