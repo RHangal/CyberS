@@ -128,7 +128,28 @@ void list_append(list_t l, void *x) {
  list_print(l1);
  - should print "[1, 2]"
  */
-void list_extend(list_t l1, list_t l2);
+void list_extend(list_t l1, list_t l2) {
+    if(!l1) {
+        printf("l1 is NULL, r.i.p");
+        return;
+    }
+    if(!l2 || !l2->head) {
+        printf("l2 is NULL, r.i.p");
+        return;
+    }
+    
+    if(!l1->head) {
+        l1->head = l2->head;
+    } else {
+        list_node* curr = l1->head;
+        while(curr->next != NULL) {
+            curr = curr->next;
+        }
+        curr->next = l2->head;
+    }
+
+    l1->size+= l2->size;
+}
 
 /*
  2: Insert
@@ -144,7 +165,49 @@ void list_extend(list_t l1, list_t l2);
  list_print(l);
  - should print "[2, 1]"
  */
-void list_insert(list_t l, size_t i, void *x);
+void list_insert(list_t l, size_t i, void *x) {
+    if(!l) {
+        fprintf(stderr, "List is NULL, r.i.p\n");
+        return;
+    }
+    if(i > l->size) {
+        fprintf(stderr, "Index out of range, r.i.p\n");
+        return;
+    }
+    list_node* node = (list_node*)malloc(sizeof(list_node));
+    if (!node) {
+        fprintf(stderr, "Memory allocation failed, r.i.p\n");
+        return;
+    }
+    node->val = x;
+    size_t index;
+    list_node* curr;
+    list_node* next;
+    if(i == 0){
+        node->next = l->head;
+        l->head = node;
+        l->size++;
+    } else if (i != l->size) {
+        index = 0;
+        curr = l->head;
+        while(index != i-1) {
+            curr = curr->next;
+            index++;
+        }
+        next = curr->next;
+        curr->next = node;
+        node->next = next;
+        l->size++;
+    } else {
+        free(node); 
+        list_append(l,x);
+    }
+}
+        
+
+
+         
+
 
 /*
  3: Remove
@@ -163,7 +226,36 @@ void list_insert(list_t l, size_t i, void *x);
  - should return True
  - should print "[2, 1, 2]" then "[1, 2]"
  */
-bool list_remove(list_t l, void *x);
+bool list_remove(list_t l, void *x) {
+    if(!l || !l->head) {
+        fprintf(stderr, "NULL list, r.i.p\n");
+        return FALSE;
+    }
+    list_node* curr = l->head;
+    list_node* prev;
+    if((uint64_t)(uintptr_t)curr->val == (uint64_t)(uintptr_t)x) {
+        l->head = curr->next;
+        free(curr);
+        l->size--;
+        return TRUE;
+    } else {
+        prev = curr;
+        curr = curr->next;
+        while(curr){
+            if((uint64_t)(uintptr_t)curr->val == (uint64_t)(uintptr_t)x){
+                prev->next = curr->next;
+                free(curr);
+                l->size--;
+                return TRUE;
+            }
+            prev = curr;
+            curr = curr->next;
+        }
+    }
+    return FALSE;
+}
+    
+
 
 /*
  4: Pop
@@ -181,7 +273,48 @@ bool list_remove(list_t l, void *x);
  list_print(l);
  - should print "[1, 2]" then "2" then "[1]"
  */
-void *list_pop(list_t l, size_t i);
+void *list_pop(list_t l, size_t i) {
+    if(!l || !l->head) {
+        fprintf(stderr, "NULL list, r.i.p\n");
+        return NULL; 
+    }
+
+    if(i >= l->size) {
+        fprintf(stderr, "Index out of range\n");
+        exit(1);
+    }
+    list_node* curr = l->head;
+    list_node* prev;
+    size_t index;
+    void* val;
+    if(i == 0){
+        val = curr->val;
+        l->head = curr->next;
+        free(curr);
+        l->size--;
+        return val;
+    } else {
+        index = 1;
+        prev = curr;
+        curr = curr->next;
+        while(index != i) {
+            prev = curr;
+            curr = curr->next;
+            index++;
+        }
+        val = curr->val;
+        prev->next = curr->next;
+        free(curr);
+        l->size--;
+        return val;
+    }
+}
+
+
+
+
+
+
 
 /*
  5: Clear
@@ -195,7 +328,24 @@ void *list_pop(list_t l, size_t i);
  clear(l)
  - should print "[]"
  */
-void list_clear(list_t l);
+void list_clear(list_t l) {
+   if(!l) {
+        fprintf(stderr, "List is NULL, r.i.p\n");
+        return;
+    }
+
+    list_node* curr = l->head;
+    list_node* next;
+    while(curr) {
+        next = curr->next;
+        /*free(curr->val);*/
+        free(curr);
+        curr = next;
+    }
+
+    l->head = NULL;
+    l->size = 0;
+}
 
 /*
  6: Index
