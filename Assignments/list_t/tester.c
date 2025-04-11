@@ -84,8 +84,48 @@ int main()
     list_clear(l);
     list_print(l);
 
-    free(l);
-    free(l2);
+    /* Test index */
+
+    printf("\n6. Index (10 pts)\n");
+    printf("Index of 3 in [1,1,3,1,3] should be:\n");
+    printf("2\n");
+    printf("Is found to be:\n");
+    list_append(l,(void *)1);
+    list_append(l,(void *)1);
+    list_append(l,(void *)3);
+    list_append(l,(void *)1);
+    list_append(l,(void *)3);
+    printf("%lu\n",list_index(l, (void *)3));
+
+    /* Test count */
+
+    printf("\n7. Count (10 pts)\n");
+    printf("Count of 1 in [1,1,3,1,3] should be:\n");
+    printf("3\n");
+    printf("Is found to be:\n");
+    printf("%lu\n",list_count(l, (void *)1));
+
+    /* Test reverse */
+
+    printf("\n8. Reverse (10 pts)\n");
+    printf("Reversing [1,1,3,1,3] should be:\n");
+    printf("[3, 1, 3, 1, 1]\n");
+    printf("Is found to be:\n");
+    list_reverse(l);
+    list_print(l);
+
+    /* Test copy */
+
+    printf("\n9. Copy (10 pts)\n");
+    printf("Copying [3,1,3,1,1] then clearing, copy should be:\n");
+    printf("[3, 1, 3, 1, 1]\n");
+    printf("Is found to be:\n");
+    l2 = list_copy(l);
+    list_clear(l);
+    list_print(l2);
+
+    list_free(l);
+    list_free(l2);
 
   
 

@@ -359,7 +359,23 @@ void list_clear(list_t l) {
  printf("%d\n", index(l, val)));
  - should print "0"
  */
-size_t list_index(list_t l, void *x);
+size_t list_index(list_t l, void *x) {
+    if(!l || !l->head) {
+        fprintf(stderr, "NULL list provided, r.i.p\n");
+        exit(1);
+    }
+    list_node* curr = l->head;
+    size_t index = 0;
+    while(curr) {
+        if((uint64_t)(uintptr_t)curr->val == (uint64_t)(uintptr_t)x){
+            return index;
+        }
+        curr = curr->next;
+        index++;
+    }
+    fprintf(stderr,"x not found in list, exiting\n");
+    exit(1);
+}
 
 /*
  7: Count
@@ -374,7 +390,22 @@ size_t list_index(list_t l, void *x);
  list_count(l, val);
  - should return 2
  */
-uint64_t list_count(list_t l, void *x);
+uint64_t list_count(list_t l, void *x) {
+    if(!l || !l->head) {
+        fprintf(stderr, "NULL list provided, r.i.p");
+        exit(1);
+    }
+    list_node* curr = l->head;
+    uint64_t count = 0;
+    while(curr) {
+        if((uint64_t)(uintptr_t)curr->val == (uint64_t)(uintptr_t)x) {
+            count++;
+        }
+        curr = curr->next;
+    }
+    return count;
+}
+
 
 /* ~: Sort
  "Extra credit" for a sorting algorithm
@@ -398,7 +429,23 @@ uint64_t list_count(list_t l, void *x);
  list_print(l);
  - should print "[1, 2]" then "[2, 1]"
  */
-void list_reverse(list_t l);
+void list_reverse(list_t l) {
+    if(!l || !l->head) {
+        fprintf(stderr,"NULL list provided, r.i.p\n");
+        exit(1);
+    }
+    list_node* curr = l->head;
+    list_node* next;
+    list_node* prev = NULL;
+    while(curr) {
+        next = curr->next;
+        curr->next = prev;
+        prev = curr;
+        curr = next;
+    }
+    l->head = prev;
+}
+        
 
 /*
  9: Copy
@@ -415,7 +462,20 @@ void list_reverse(list_t l);
  list_print(r);
  - should print "[1, 1]" then "[1]"
  */
-list_t list_copy(list_t l);
+list_t list_copy(list_t l) {
+    if(!l || !l->head) {
+        fprintf(stderr, "NULL list provided, r.i.p\n");
+        exit(1);
+    }
+    list_node* curr = l->head;
+    list_t copy = list_new();
+    while(curr) {
+        list_append(copy, curr->val);
+        curr = curr->next;
+    }
+    return copy;
+}
+
 
 
 
