@@ -1,0 +1,14 @@
+name: C89 CI
+
+on:
+  push:
+  schedule:
+    - cron: '0 0 * * *'
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - run: make check

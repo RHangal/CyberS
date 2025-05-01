@@ -1,0 +1,8 @@
+FROM alpine
+
+RUN apk add build-base gcc curl python3 gmp-dev
+
+COPY . ./bigrsa
+
+RUN gcc bigrsa/bigrsa.c bigrsa/math_t/math_t.c bigrsa/math_t/4096_t.c bigrsa/rsalib.c -Wall -Wextra -Werror -Wpedantic -lgmp -o bigrsa/bigrsa.o
+RUN gcc bigrsa/bigkey.c bigrsa/math_t/math_t.c bigrsa/math_t/4096_t.c bigrsa/rsalib.c -Wall -Wextra -Werror -Wpedantic -lgmp -o bigrsa/bigkey.o
